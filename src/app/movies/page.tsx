@@ -1,49 +1,31 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-
-interface Movie {
-  _id: string;
-  title: string;
-  year?: number;
-  plot?: string;
-  poster?: string;
-}
+import MovieList from "./components/MovieList";
+import MovieForm from "./components/MovieForm";
+import { useMovies } from "./hooks/useMovies";
 
 export default function MoviesPage() {
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchMovies = async () => {
-      try {
-        const response = await fetch('/api/test');
-        const data = await response.json();
-        setMovies(data.data);
-      } catch (error) {
-        console.error('Error fetching movies:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchMovies();
-  }, []);
-
-  if (loading) return <div>Loading...</div>;
+  const { movies, loading, addingMovie, error, addMovie, editMovie, deleteMovie, deletingMovie } = useMovies();
 
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Movies</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {movies.map((movie) => (
-          <div key={movie._id} className="border rounded-lg p-4 shadow">
-            <h2 className="text-xl font-semibold">{movie.title}</h2>
-            {movie.year && <p className="text-gray-600">Year: {movie.year}</p>}
-            {movie.plot && <p className="mt-2">{movie.plot}</p>}
-          </div>
-        ))}
-      </div>
+
+      {error && (
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+          {error}
+        </div>
+      )}
+
+      <MovieForm onAddMovie={addMovie} loading={addingMovie} />
+      <MovieList
+        movies={movies}
+        loading={loading}
+        error={error}
+        editMovie={editMovie}
+        editingMovie={false}
+        deletingMovie={deletingMovie}
+        deleteMovie={deleteMovie} />
     </div>
   );
 }
