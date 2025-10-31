@@ -1,6 +1,12 @@
+'use client';
+
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 export default function Header() {
+  const session = useSession()
+
+  console.log('User session:', session);
   return (
     <header className="bg-blue-600 text-white shadow-lg">
       <div className="container mx-auto px-4 py-4">
@@ -22,6 +28,11 @@ export default function Header() {
             <li>
               <Link href="/api/test" className="hover:text-blue-200 transition-colors">
                 API Test
+              </Link>
+            </li>
+            <li>
+              <Link href="/signin" className="hover:text-blue-200 transition-colors">
+                Sign In
               </Link>
             </li>
           </ul>

@@ -6,7 +6,10 @@ export async function GET() {
     console.log('Fetching movies...');
     
     const { db } = await connectToDatabase();
+    console.log('Database connected successfully');
+    
     const collection = db.collection('movies_test');
+    console.log('Collection accessed');
 
     const movies = await collection.find({}).limit(10).toArray();
     console.log('Fetched movies:', movies.length);
@@ -18,6 +21,7 @@ export async function GET() {
 
   } catch (error) {
     console.error('Error fetching movies:', error);
+    console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
     return NextResponse.json(
       { error: `Failed to fetch movies: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
