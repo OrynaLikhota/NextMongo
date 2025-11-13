@@ -13,14 +13,40 @@ export function useMovies() {
 
   useEffect(() => {
     const fetchMovies = async () => {
+      console.log('Fetching movies...');
       try {
-        const response = await fetch('/api/movies');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+        const response = await fetch('/api/movies', {
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error('Response error:', errorText);
+          throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+
         const data = await response.json();
         console.log('Fetched movies:', data);
-        setMovies(data.data);
+        setMovies(data.data || []);
       } catch (error) {
         console.error('Error fetching movies:', error);
-        setError('Failed to load movies');
+        
+        if (error instanceof Error) {
+          if (error.name === 'AbortError') {
+            setError('Request timeout - please check your internet connection');
+          } else if (error.message.includes('ETIMEDOUT')) {
+            setError('Database connection timeout - please try again later');
+          } else {
+            setError(`Failed to load movies: ${error.message}`);
+          }
+        } else {
+          setError('Failed to load movies');
+        }
       } finally {
         setLoading(false);
       }
